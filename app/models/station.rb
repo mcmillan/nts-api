@@ -1,59 +1,63 @@
 class Station
+  NTS_URL = 'https://www.nts.live'.freeze
+
   STREAM_URLS = {
     'one' => 'http://stream-relay-geo.ntslive.net/stream',
     'two' => 'http://stream-relay-geo.ntslive.net/stream2'
   }.freeze
 
-  SCHEDULE_PAGE_URLS = {
-    'one' => 'https://www.nts.live/schedule',
-    'two' => 'https://www.nts.live/schedule/2'
+  LISTING_PAGE_URLS = {
+    'one' => '/schedule/listing_xhr/1?ajax=true&timezone=Europe%2FLondon',
+    'two' => '/schedule/listing_xhr/2?ajax=true&timezone=Europe%2FLondon'
   }.freeze
 
-  attr_reader :station_name, :episode_name, :episode_description,
-              :location_short, :location_long, :image_url
+  attr_reader :name
 
-  def initialize(name, info)
-    @station_name = name
-    @episode_name = info['episode_name']
-    @location_short = info['location_short']
-    @location_long = info['location_long']
-    extract_schedule_page_data
+  def initialize(name:)
+    @name = name
   end
 
   def stream_url
-    STREAM_URLS[station_name]
+    @stream_url ||= URI.join(NTS_URL, STREAM_URLS.fetch(name))
   end
 
-  def schedule_page_url
-    SCHEDULE_PAGE_URLS[station_name]
+  def current_show
+    shows.find(&:now?)
   end
 
   def to_json(*args)
     {
-      name: station_name,
-      episode: {
-        name: episode_name,
-        description: episode_description,
-        imageUrl: image_url
-      },
-      location: {
-        short: location_short,
-        long: location_long
-      },
-      streamUrl: stream_url,
-      schedulePageUrl: schedule_page_url
+      name: name.upcase,
+      show: current_show,
+      streamUrl: stream_url
     }.to_json(*args)
   end
 
   private
 
-  def extract_schedule_page_data
-    doc = Nokogiri::HTML(HTTParty.get(schedule_page_url).body)
-    @episode_name = doc.css('.bio .bio__title').first.content.strip
-    @episode_description = doc.css('.bio .description').first.content.strip
-    @image_url = doc.css('#bg').first['style'].match(/url\((.*)\)/)[1]
-  rescue
-    @image_url = '' # TODO: Make this a placeholder
-    @episode_description = 'N/A'
+  def listing_page_url
+    @listing_page_url ||= URI.join(NTS_URL, LISTING_PAGE_URLS.fetch(name))
+  end
+
+  def listing_page_document
+    @listing_page_document ||= Nokogiri::HTML.parse(
+      HTTParty.get(listing_page_url).body
+    )
+  end
+
+  def shows
+    @shows ||= listing_page_document
+               .css('.listing-container:first li.show')
+               .map do |s|
+                 from, to = s.css('.time').first.content.strip.split(' - ')
+                 url = s.css('.title a').first['href']
+                 title = s.css('.title').first.content.strip
+                 Show.new(
+                   from: from,
+                   to: to,
+                   url: URI.join(NTS_URL, url).to_s,
+                   title: title
+                 )
+               end
   end
 end

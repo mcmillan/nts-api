@@ -7,5 +7,5 @@ end
 
 get '/api/live' do
   content_type :json
-  { stations: LiveInformationService.stations }.to_json
+  { stations: %w(one two).map { |s| Station.new(name: s) } }.to_json
 end
