@@ -53,7 +53,8 @@ class Show
   def image_url
     document.css('#bg').first['style'].match(/url\((.*)\)/)[1]
   rescue
-    nil # TODO: Change to placeholder image
+    # TODO: Generate this URL dynamically
+    'https://nts-api.joshmcmillan.com/static/default_show.jpg'
   end
 
   def description
