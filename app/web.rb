@@ -1,6 +1,8 @@
 require 'sinatra'
 require_relative 'boot'
 
+set :public_folder, File.expand_path(File.join(__dir__, '..', 'public'))
+
 before do
   expires 120, :public, :must_revalidate
 end
