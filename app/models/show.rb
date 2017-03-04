@@ -1,7 +1,7 @@
 class Show
   attr_reader :url
 
-  def initialize(from:, to:, url:, title:)
+  def initialize(from: nil, to: nil, url: nil, title: nil)
     @from = from
     @to = to
     @url = url

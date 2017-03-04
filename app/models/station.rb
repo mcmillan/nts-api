@@ -22,7 +22,7 @@ class Station
   end
 
   def current_show
-    shows.find(&:now?)
+    shows.find(&:now?) || Show.new
   end
 
   def to_json(*args)
