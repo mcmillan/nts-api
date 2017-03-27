@@ -1,0 +1,21 @@
+{
+  "name": "nts-api",
+  "version": "0.1.0",
+  "description": "A simple proxy for nts that spits out currently playing data",
+  "main": "index.js",
+  "scripts": {
+    "start": "micro"
+  },
+  "repository": "https://github.com/samjbmason/nts-api.git",
+  "author": "Sam Mason <samm@lostmy.name>",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "const": "^1.0.0",
+    "expiring-lru-cache": "^2.1.0",
+    "micro": "^7.2.2",
+    "ms": "^1.0.0",
+    "node-fetch": "^1.6.3",
+    "p-memoize": "^1.0.0"
+  }
+}
