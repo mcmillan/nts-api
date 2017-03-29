@@ -27,7 +27,9 @@ class Station
 
   def next_show
     current_index = shows.find_index(&:now?)
-    shows[current_index + 1] || Show.new
+    shows.fetch(current_index + 1)
+  rescue
+    Show.new
   end
 
   def to_json(*args)
