@@ -25,10 +25,17 @@ class Station
     shows.find(&:now?) || Show.new
   end
 
+  def next_show
+    current_index = shows.find_index(&:now?)
+    shows[current_index + 1] || Show.new
+  end
+
   def to_json(*args)
     {
       name: name.upcase,
       show: current_show,
+      currentShow: current_show,
+      nextShow: next_show,
       streamUrl: stream_url
     }.to_json(*args)
   end
